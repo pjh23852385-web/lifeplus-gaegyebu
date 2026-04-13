@@ -25,34 +25,32 @@ export default function InputForm({ onAdd }: Props) {
     setAmount("");
   };
 
+  const inputClass =
+    "px-4 py-3 bg-[rgba(15,15,40,0.6)] border border-[rgba(123,47,247,0.2)] rounded-xl text-sm text-[var(--star-white)] placeholder-[var(--text-dim)] outline-none transition-all focus:border-[var(--nebula-purple)] focus:shadow-[0_0_15px_rgba(123,47,247,0.2)] backdrop-blur-sm";
+
   return (
-    <div className="form-section">
-      <div className="flex items-center gap-2 mb-4">
-        <div className="w-1 h-5 bg-[var(--accent)] rounded-sm" />
-        <h2 className="text-lg font-bold text-[var(--text-dark)]">내역 입력</h2>
+    <div className="form-section mb-10">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-1.5 h-5 rounded-full bg-gradient-to-b from-[var(--nebula-purple)] to-[var(--nebula-pink)]" />
+        <h2 className="text-lg font-bold text-[var(--star-white)]">&#x1F680; 기록 추가</h2>
       </div>
-      <div className="bg-white rounded-2xl p-7 shadow-[0_4px_20px_rgba(0,0,0,0.06)] border border-black/[0.04] mb-8 animate-fade-up">
+      <div className="space-card p-7 animate-fade-up">
         <div className="grid grid-cols-[160px_110px_1fr_140px_auto] gap-3 items-center max-md:grid-cols-2 max-sm:grid-cols-1">
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="px-4 py-3 border border-gray-200 rounded-xl text-sm bg-gray-50 focus:border-[var(--accent)] focus:bg-white focus:shadow-[0_0_0_3px_rgba(233,69,96,0.1)] outline-none transition-all"
-          />
+          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputClass} />
           <select
             value={type}
             onChange={(e) => setType(e.target.value as "income" | "expense")}
-            className="px-4 py-3 border border-gray-200 rounded-xl text-sm bg-gray-50 focus:border-[var(--accent)] focus:bg-white outline-none transition-all"
+            className={`${inputClass} cursor-pointer`}
           >
-            <option value="expense">지출</option>
-            <option value="income">수입</option>
+            <option value="expense">&#x1F4A5; 지출</option>
+            <option value="income">&#x1F6F8; 수입</option>
           </select>
           <input
             type="text"
-            placeholder="내용을 입력하세요"
+            placeholder="우주 어디에 사용했나요?"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="px-4 py-3 border border-gray-200 rounded-xl text-sm bg-gray-50 focus:border-[var(--accent)] focus:bg-white focus:shadow-[0_0_0_3px_rgba(233,69,96,0.1)] outline-none transition-all max-md:col-span-2 max-sm:col-span-1"
+            className={`${inputClass} max-md:col-span-2 max-sm:col-span-1`}
           />
           <input
             type="number"
@@ -60,13 +58,13 @@ export default function InputForm({ onAdd }: Props) {
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-            className="px-4 py-3 border border-gray-200 rounded-xl text-sm bg-gray-50 focus:border-[var(--accent)] focus:bg-white focus:shadow-[0_0_0_3px_rgba(233,69,96,0.1)] outline-none transition-all"
+            className={inputClass}
           />
           <button
             onClick={handleSubmit}
-            className="px-7 py-3 bg-[var(--accent)] text-white rounded-xl text-sm font-semibold cursor-pointer hover:bg-[var(--accent-hover)] hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(233,69,96,0.3)] transition-all whitespace-nowrap max-md:col-span-2 max-sm:col-span-1"
+            className="px-7 py-3 rounded-xl text-sm font-bold cursor-pointer whitespace-nowrap transition-all duration-300 bg-gradient-to-r from-[var(--nebula-purple)] to-[var(--nebula-pink)] text-white hover:shadow-[0_0_25px_rgba(123,47,247,0.4)] hover:-translate-y-0.5 active:scale-95 max-md:col-span-2 max-sm:col-span-1"
           >
-            추가하기
+            발사 &#x1F680;
           </button>
         </div>
       </div>

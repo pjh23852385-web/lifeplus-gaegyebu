@@ -27,13 +27,19 @@ const CATEGORIES: Record<string, string[]> = {
 };
 
 const tooltipStyle = {
-  backgroundColor: "rgba(26,26,46,0.9)" as const,
-  padding: 12,
-  cornerRadius: 10,
+  backgroundColor: "rgba(10,10,30,0.95)" as const,
+  borderColor: "rgba(123,47,247,0.3)",
+  borderWidth: 1,
+  padding: 14,
+  cornerRadius: 12,
+  titleColor: "#e8e8ff",
+  bodyColor: "#a0a0cc",
 };
 
+const gridColor = "rgba(123, 47, 247, 0.08)";
+const cosmicColors = ["#ff2d95", "#7b2ff7", "#00d4ff", "#ff6b35", "#00ff88", "#ffcc00"];
+
 export default function Charts({ items }: Props) {
-  // 일별 차트 데이터
   const dates = [...new Set(items.map((d) => d.date))].sort();
   const dailyIncome: Record<string, number> = {};
   const dailyExpense: Record<string, number> = {};
@@ -43,7 +49,6 @@ export default function Charts({ items }: Props) {
     else dailyExpense[item.date] += item.amount;
   });
 
-  // 카테고리 파이차트 데이터
   const catTotals: Record<string, number> = {};
   items.filter((d) => d.type === "expense").forEach((item) => {
     let matched = "기타";
@@ -53,7 +58,6 @@ export default function Charts({ items }: Props) {
     catTotals[matched] = (catTotals[matched] || 0) + item.amount;
   });
 
-  // 주간별 데이터
   const weekLabels = ["1주차", "2주차", "3주차", "4주차", "5주차"];
   const weekTotals = [0, 0, 0, 0, 0];
   items.filter((d) => d.type === "expense").forEach((item) => {
@@ -71,58 +75,74 @@ export default function Charts({ items }: Props) {
   const moneyLabel = (ctx: { dataset: { label?: string }; raw: unknown }) =>
     (ctx.dataset.label ? ctx.dataset.label + ": " : "") + (ctx.raw as number).toLocaleString() + "원";
 
+  const scaleOptions = {
+    y: { grid: { color: gridColor }, ticks: { callback: tickCallback, color: "#6060aa" } },
+    x: { grid: { display: false }, ticks: { color: "#6060aa" } },
+  };
+
   return (
-    <div className="chart-section mb-8">
-      <div className="flex items-center gap-2 mb-4">
-        <div className="w-1 h-5 bg-[var(--accent)] rounded-sm" />
-        <h2 className="text-lg font-bold text-[var(--text-dark)]">월간 분석</h2>
+    <div className="chart-section mb-10">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-1.5 h-5 rounded-full bg-gradient-to-b from-[var(--nebula-blue)] to-[var(--nebula-purple)]" />
+        <h2 className="text-lg font-bold text-[var(--star-white)]">&#x1F30C; 우주 분석</h2>
       </div>
-      <div className="grid grid-cols-2 gap-4 max-sm:grid-cols-1">
-        {/* 일별 수입/지출 */}
-        <div className="col-span-2 max-sm:col-span-1 bg-white rounded-2xl p-6 shadow-[0_4px_20px_rgba(0,0,0,0.06)] border border-black/[0.04] hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] transition-shadow animate-fade-up">
-          <h3 className="text-sm font-semibold text-[var(--text-mid)] mb-4">일별 수입 / 지출 추이</h3>
+      <div className="grid grid-cols-2 gap-5 max-sm:grid-cols-1">
+        {/* 일별 */}
+        <div className="col-span-2 max-sm:col-span-1 space-card p-6 animate-fade-up">
+          <h3 className="text-sm font-semibold text-[var(--text-mid)] mb-4">&#x2604;&#xFE0F; 일별 수입 / 지출 궤적</h3>
           <Bar
             data={{
               labels: dates.map((d) => d.slice(5)),
               datasets: [
-                { label: "수입", data: dates.map((d) => dailyIncome[d]), backgroundColor: "rgba(15,155,88,0.75)", borderRadius: 6 },
-                { label: "지출", data: dates.map((d) => dailyExpense[d]), backgroundColor: "rgba(233,69,96,0.75)", borderRadius: 6 },
+                {
+                  label: "수입",
+                  data: dates.map((d) => dailyIncome[d]),
+                  backgroundColor: "rgba(0, 255, 136, 0.7)",
+                  borderColor: "rgba(0, 255, 136, 1)",
+                  borderWidth: 1,
+                  borderRadius: 6,
+                },
+                {
+                  label: "지출",
+                  data: dates.map((d) => dailyExpense[d]),
+                  backgroundColor: "rgba(255, 45, 149, 0.7)",
+                  borderColor: "rgba(255, 45, 149, 1)",
+                  borderWidth: 1,
+                  borderRadius: 6,
+                },
               ],
             }}
             options={{
               responsive: true,
               interaction: { intersect: false, mode: "index" },
               plugins: {
-                legend: { position: "top", labels: { usePointStyle: true, pointStyle: "circle", padding: 20 } },
+                legend: { position: "top", labels: { usePointStyle: true, pointStyle: "circle", padding: 20, color: "#a0a0cc" } },
                 tooltip: { ...tooltipStyle, callbacks: { label: moneyLabel } },
               },
-              scales: {
-                y: { grid: { color: "rgba(0,0,0,0.04)" }, ticks: { callback: tickCallback } },
-                x: { grid: { display: false } },
-              },
+              scales: scaleOptions,
             }}
           />
         </div>
 
-        {/* 지출 카테고리 */}
-        <div className="bg-white rounded-2xl p-6 shadow-[0_4px_20px_rgba(0,0,0,0.06)] border border-black/[0.04] hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] transition-shadow animate-fade-up" style={{ animationDelay: "100ms" }}>
-          <h3 className="text-sm font-semibold text-[var(--text-mid)] mb-4">지출 카테고리 비율</h3>
+        {/* 카테고리 */}
+        <div className="space-card p-6 animate-fade-up" style={{ animationDelay: "100ms" }}>
+          <h3 className="text-sm font-semibold text-[var(--text-mid)] mb-4">&#x1FA90; 지출 행성 비율</h3>
           <Doughnut
             data={{
               labels: Object.keys(catTotals),
               datasets: [{
                 data: Object.values(catTotals),
-                backgroundColor: ["#e94560", "#1a73e8", "#f39c12", "#9b59b6", "#0f9b58", "#95a5a6"],
-                borderWidth: 3,
-                borderColor: "#fff",
-                hoverOffset: 8,
+                backgroundColor: cosmicColors.slice(0, Object.keys(catTotals).length),
+                borderWidth: 2,
+                borderColor: "rgba(5,5,15,0.8)",
+                hoverOffset: 10,
               }],
             }}
             options={{
               responsive: true,
-              cutout: "60%",
+              cutout: "65%",
               plugins: {
-                legend: { position: "bottom", labels: { padding: 16, usePointStyle: true, pointStyle: "circle", font: { size: 12 } } },
+                legend: { position: "bottom", labels: { padding: 16, usePointStyle: true, pointStyle: "circle", font: { size: 12 }, color: "#a0a0cc" } },
                 tooltip: {
                   ...tooltipStyle,
                   callbacks: {
@@ -138,16 +158,18 @@ export default function Charts({ items }: Props) {
           />
         </div>
 
-        {/* 주간별 지출 */}
-        <div className="bg-white rounded-2xl p-6 shadow-[0_4px_20px_rgba(0,0,0,0.06)] border border-black/[0.04] hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] transition-shadow animate-fade-up" style={{ animationDelay: "200ms" }}>
-          <h3 className="text-sm font-semibold text-[var(--text-mid)] mb-4">주간별 지출 현황</h3>
+        {/* 주간별 */}
+        <div className="space-card p-6 animate-fade-up" style={{ animationDelay: "200ms" }}>
+          <h3 className="text-sm font-semibold text-[var(--text-mid)] mb-4">&#x1F31F; 주간 에너지 소비</h3>
           <Bar
             data={{
               labels: filteredWeekLabels,
               datasets: [{
                 label: "지출",
                 data: filteredWeekTotals,
-                backgroundColor: ["#e94560", "#1a73e8", "#f39c12", "#0f9b58", "#9b59b6"],
+                backgroundColor: cosmicColors.map((c) => c + "bb"),
+                borderColor: cosmicColors,
+                borderWidth: 1,
                 borderRadius: 8,
               }],
             }}
@@ -157,10 +179,7 @@ export default function Charts({ items }: Props) {
                 legend: { display: false },
                 tooltip: { ...tooltipStyle, callbacks: { label: moneyLabel } },
               },
-              scales: {
-                y: { grid: { color: "rgba(0,0,0,0.04)" }, ticks: { callback: tickCallback } },
-                x: { grid: { display: false } },
-              },
+              scales: scaleOptions,
             }}
           />
         </div>

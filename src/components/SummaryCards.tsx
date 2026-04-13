@@ -9,29 +9,57 @@ interface Props {
 }
 
 const cards = [
-  { key: "income", label: "INCOME", icon: "+", colorClass: "text-[var(--income-color)]", bgClass: "bg-[rgba(15,155,88,0.1)]" },
-  { key: "expense", label: "EXPENSE", icon: "−", colorClass: "text-[var(--expense-color)]", bgClass: "bg-[rgba(233,69,96,0.1)]" },
-  { key: "balance", label: "BALANCE", icon: "=", colorClass: "text-[var(--balance-color)]", bgClass: "bg-[rgba(26,115,232,0.1)]" },
+  {
+    key: "income",
+    label: "INCOMING",
+    icon: "&#x1F6F8;",
+    gradient: "from-[#00ff88] to-[#00cc66]",
+    glowColor: "rgba(0,255,136,0.2)",
+    borderColor: "rgba(0,255,136,0.3)",
+    textColor: "text-[var(--income-color)]",
+  },
+  {
+    key: "expense",
+    label: "OUTGOING",
+    icon: "&#x1F4A5;",
+    gradient: "from-[#ff2d95] to-[#ff6b35]",
+    glowColor: "rgba(255,45,149,0.2)",
+    borderColor: "rgba(255,45,149,0.3)",
+    textColor: "text-[var(--expense-color)]",
+  },
+  {
+    key: "balance",
+    label: "BALANCE",
+    icon: "&#x1FA90;",
+    gradient: "from-[#00d4ff] to-[#7b2ff7]",
+    glowColor: "rgba(0,212,255,0.2)",
+    borderColor: "rgba(0,212,255,0.3)",
+    textColor: "text-[var(--balance-color)]",
+  },
 ] as const;
 
 export default function SummaryCards({ totalIncome, totalExpense, balance }: Props) {
   const values = { income: totalIncome, expense: totalExpense, balance };
 
   return (
-    <div className="summary-section grid grid-cols-3 gap-4 -mt-10 mb-8 relative z-10">
-      {cards.map(({ key, label, icon, colorClass, bgClass }, i) => (
+    <div className="summary-section grid grid-cols-3 gap-5 mb-10 max-sm:grid-cols-1">
+      {cards.map(({ key, label, icon, gradient, glowColor, borderColor, textColor }, i) => (
         <div
           key={key}
-          className="bg-white rounded-2xl p-6 text-center shadow-[0_4px_20px_rgba(0,0,0,0.06)] border border-black/[0.04] hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] transition-all duration-300 animate-fade-up"
-          style={{ animationDelay: `${i * 100}ms` }}
+          className="relative group space-card p-6 text-center animate-fade-up"
+          style={{
+            animationDelay: `${i * 150}ms`,
+            borderColor,
+            boxShadow: `0 0 25px ${glowColor}, inset 0 1px 0 rgba(255,255,255,0.05)`,
+          }}
         >
-          <div className={`w-11 h-11 rounded-xl flex items-center justify-center mx-auto mb-3 text-xl ${bgClass}`}>
-            {icon}
-          </div>
-          <div className="text-xs text-[var(--text-light)] font-medium tracking-widest uppercase mb-1">
+          <div className="absolute inset-0 rounded-[20px] bg-gradient-to-br opacity-5 group-hover:opacity-10 transition-opacity"
+            style={{ backgroundImage: `linear-gradient(135deg, ${glowColor}, transparent)` }} />
+          <div className="text-3xl mb-3" dangerouslySetInnerHTML={{ __html: icon }} />
+          <div className="text-[10px] text-[var(--text-dim)] font-bold tracking-[3px] uppercase mb-2">
             {label}
           </div>
-          <div className={`text-[22px] font-bold ${colorClass}`}>
+          <div className={`text-2xl font-black ${textColor} drop-shadow-[0_0_10px_${glowColor}]`}>
             {formatMoney(values[key])}
           </div>
         </div>
