@@ -11,7 +11,7 @@ import Footer from "@/components/Footer";
 import { useLedger } from "@/hooks/useLedger";
 
 export default function Home() {
-  const { items, addItem, deleteItem, totalIncome, totalExpense, balance } = useLedger();
+  const { items, loading, addItem, deleteItem, totalIncome, totalExpense, balance } = useLedger();
 
   return (
     <>
@@ -19,10 +19,17 @@ export default function Home() {
       <Header />
       <Hero />
       <main className="relative z-10 max-w-[960px] mx-auto px-6 py-8 flex-1">
+        {loading && (
+          <div className="text-center py-20 text-[var(--text-dim)] text-sm animate-pulse">
+            데이터를 불러오는 중...
+          </div>
+        )}
+        {!loading && (<>
         <SummaryCards totalIncome={totalIncome} totalExpense={totalExpense} balance={balance} />
         <InputForm onAdd={addItem} />
         <Charts items={items} />
         <TransactionList items={items} onDelete={deleteItem} />
+        </>)}
       </main>
       <Footer />
     </>

@@ -2,41 +2,68 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { LedgerItem } from "@/types/ledger";
-import { SAMPLE_DATA } from "@/data/sampleData";
-
-const STORAGE_KEY = "household_ledger_nextjs";
+import { supabase } from "@/lib/supabase";
 
 export function useLedger() {
   const [items, setItems] = useState<LedgerItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored && JSON.parse(stored).length > 0) {
-      setItems(JSON.parse(stored));
-    } else {
-      setItems(SAMPLE_DATA);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(SAMPLE_DATA));
+  const fetchItems = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from("ledger_items")
+        .select("*")
+        .order("date", { ascending: false });
+
+      if (error) {
+        console.error("Failed to fetch:", error);
+        return;
+      }
+
+      setItems(data ?? []);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
-  const save = useCallback((data: LedgerItem[]) => {
-    setItems(data);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  }, []);
+  useEffect(() => {
+    fetchItems();
+  }, [fetchItems]);
 
   const addItem = useCallback(
-    (item: Omit<LedgerItem, "id">) => {
-      const newItem = { ...item, id: Date.now() };
-      save([...items, newItem]);
+    async (item: Omit<LedgerItem, "id">) => {
+      const { error } = await supabase.from("ledger_items").insert({
+        date: item.date,
+        type: item.type,
+        description: item.description,
+        amount: item.amount,
+      });
+
+      if (error) {
+        console.error("Failed to add:", error);
+        return;
+      }
+
+      fetchItems();
     },
-    [items, save]
+    [fetchItems]
   );
 
   const deleteItem = useCallback(
-    (id: number) => {
-      save(items.filter((item) => item.id !== id));
+    async (id: number) => {
+      const { error } = await supabase
+        .from("ledger_items")
+        .delete()
+        .eq("id", id);
+
+      if (error) {
+        console.error("Failed to delete:", error);
+        return;
+      }
+
+      fetchItems();
     },
-    [items, save]
+    [fetchItems]
   );
 
   const totalIncome = items
@@ -49,6 +76,7 @@ export function useLedger() {
 
   return {
     items,
+    loading,
     addItem,
     deleteItem,
     totalIncome,
